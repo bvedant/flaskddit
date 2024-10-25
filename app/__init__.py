@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from .database import init_db
 
 def load_env():
     """Load variables from a .env file into environment variables."""
@@ -18,7 +19,6 @@ def create_app():
     app.config['DATABASE'] = 'site.db'
 
     with app.app_context():
-        from .database import init_db
         init_db()
 
     from .routes import main
