@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h1>{{ post['title'] }}</h1>
+  <p>{{ post['content'] }}</p>
+  <hr>
+  
+  <h2>Comments</h2>
+  <div class="comments mb-4">
+    {% for comment in comments %}
+      <div class="mb-2">
+        <strong>{{ comment['username'] }}</strong>: {{ comment['content'] }}
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if session.get('user_id') %}
+    <form method="POST">
+      <div class="mb-3">
+        <label for="comment" class="form-label">Add a comment</label>
+        <textarea id="comment" name="comment" class="form-control" rows="3" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Post Comment</button>
+    </form>
+  {% else %}
+    <p>Please <a href="{{ url_for('main.login') }}">log in</a> to comment.</p>
+  {% endif %}
+{% endblock %}
