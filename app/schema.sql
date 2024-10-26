@@ -31,3 +31,13 @@ CREATE TABLE IF NOT EXISTS votes (
     FOREIGN KEY (post_id) REFERENCES posts (id),
     UNIQUE (user_id, post_id) -- Prevent multiple votes by the same user on the same post
 );
+
+CREATE TABLE IF NOT EXISTS comment_votes (
+    id INTEGER PRIMARY KEY,
+    comment_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    vote INTEGER NOT NULL,  -- 1 for upvote, -1 for downvote
+    FOREIGN KEY (comment_id) REFERENCES comments (id),
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    UNIQUE (comment_id, user_id)  -- Ensures one vote per user per comment
+);

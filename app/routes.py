@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
-from .database import get_db, add_user, validate_user, add_post, get_posts, add_vote, get_vote_count
+from .database import get_db, add_user, validate_user, add_post, get_posts, add_vote, get_vote_count, add_comment_vote, get_comment_vote_count
 
 main = Blueprint('main', __name__)
 
@@ -69,7 +69,13 @@ def new_post():
 def view_post(post_id):
     db = get_db()
     post = db.execute('SELECT * FROM posts WHERE id = ?', (post_id,)).fetchone()
-    comments = db.execute('SELECT comments.content, users.username FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ?', (post_id,)).fetchall()
+    comments = db.execute('''
+        SELECT comments.id, comments.content, users.username 
+        FROM comments 
+        JOIN users ON comments.user_id = users.id 
+        WHERE comments.post_id = ?
+    ''', (post_id,)).fetchall()
+
 
     if request.method == 'POST':
         if 'user_id' not in session:
@@ -82,7 +88,7 @@ def view_post(post_id):
         db.commit()
         return redirect(url_for('main.view_post', post_id=post_id))
 
-    return render_template('view_post.html', post=post, comments=comments, get_vote_count=get_vote_count)
+    return render_template('view_post.html', post=post, comments=comments, get_vote_count=get_vote_count, get_comment_vote_count=get_comment_vote_count)
 
 @main.route("/post/<int:post_id>/upvote", methods=["POST"])
 def upvote(post_id):
@@ -102,3 +108,20 @@ def downvote(post_id):
     add_vote(post_id, session['user_id'], -1)
     return redirect(url_for("main.view_post", post_id=post_id))
 
+@main.route("/comment/<int:comment_id>/upvote", methods=["POST"])
+def upvote_comment(comment_id):
+    if 'user_id' not in session:
+        flash("Please log in to vote.", "danger")
+        return redirect(url_for("main.login"))
+
+    add_comment_vote(comment_id, session['user_id'], 1)
+    return redirect(request.referrer or url_for("main.home"))
+
+@main.route("/comment/<int:comment_id>/downvote", methods=["POST"])
+def downvote_comment(comment_id):
+    if 'user_id' not in session:
+        flash("Please log in to vote.", "danger")
+        return redirect(url_for("main.login"))
+
+    add_comment_vote(comment_id, session['user_id'], -1)
+    return redirect(request.referrer or url_for("main.home"))

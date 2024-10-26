@@ -55,3 +55,14 @@ def get_vote_count(post_id):
     upvotes = db.execute('SELECT COUNT(*) FROM votes WHERE post_id = ? AND vote = 1', (post_id,)).fetchone()[0]
     downvotes = db.execute('SELECT COUNT(*) FROM votes WHERE post_id = ? AND vote = -1', (post_id,)).fetchone()[0]
     return upvotes - downvotes
+
+def add_comment_vote(comment_id, user_id, vote):
+    db = get_db()
+    db.execute('INSERT OR REPLACE INTO comment_votes (comment_id, user_id, vote) VALUES (?, ?, ?)', (comment_id, user_id, vote))
+    db.commit()
+
+def get_comment_vote_count(comment_id):
+    db = get_db()
+    upvotes = db.execute('SELECT COUNT(*) FROM comment_votes WHERE comment_id = ? AND vote = 1', (comment_id,)).fetchone()[0]
+    downvotes = db.execute('SELECT COUNT(*) FROM comment_votes WHERE comment_id = ? AND vote = -1', (comment_id,)).fetchone()[0]
+    return upvotes - downvotes

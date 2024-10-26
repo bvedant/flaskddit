@@ -1,34 +1,41 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1>{{ post['title'] }}</h1>
-<p>{{ post['content'] }}</p>
-<p>Score: {{ get_vote_count(post['id']) }}</p>
-<form method="POST" action="{{ url_for('main.upvote', post_id=post['id']) }}">
-  <button type="submit" class="btn btn-success">Upvote</button>
-</form>
-<form method="POST" action="{{ url_for('main.downvote', post_id=post['id']) }}">
-  <button type="submit" class="btn btn-danger">Downvote</button>
-</form>
-<hr>
+  <h1>{{ post['title'] }}</h1>
+  <p>{{ post['content'] }}</p>
+  <p>Score: {{ get_vote_count(post['id']) }}</p>
+  <form method="POST" action="{{ url_for('main.upvote', post_id=post['id']) }}">
+    <button type="submit" class="btn btn-success">Upvote</button>
+  </form>
+  <form method="POST" action="{{ url_for('main.downvote', post_id=post['id']) }}">
+    <button type="submit" class="btn btn-danger">Downvote</button>
+  </form>
+  <hr>
 
-<h2>Comments</h2>
-<div class="comments mb-4">
-  {% for comment in comments %}
-  <div class="mb-2">
-    <strong>{{ comment['username'] }}</strong>: {{ comment['content'] }}
+  <h2>Comments</h2>
+  <div class="comments mb-4">
+    {% for comment in comments %}
+      <div class="mb-2">
+        <strong>{{ comment['username'] }}</strong>: {{ comment['content'] }}
+        <p>Score: {{ get_comment_vote_count(comment['id']) }}</p>
+        <form method="POST" action="{{ url_for('main.upvote_comment', comment_id=comment['id']) }}" class="d-inline">
+          <button type="submit" class="btn btn-sm btn-success">Upvote</button>
+        </form>
+        <form method="POST" action="{{ url_for('main.downvote_comment', comment_id=comment['id']) }}" class="d-inline">
+          <button type="submit" class="btn btn-sm btn-danger">Downvote</button>
+        </form>
+      </div>
+    {% endfor %}
   </div>
-  {% endfor %}
-</div>
 
-{% if session.get('user_id') %}
-<form method="POST">
-  <div class="mb-3">
-    <label for="comment" class="form-label">Add a comment</label>
-    <textarea id="comment" name="comment" class="form-control" rows="3" required></textarea>
-  </div>
-  <button type="submit" class="btn btn-primary">Post Comment</button>
-</form>
-{% else %}
-<p>Please <a href="{{ url_for('main.login') }}">log in</a> to comment.</p>
-{% endif %}
+  {% if session.get('user_id') %}
+    <form method="POST">
+      <div class="mb-3">
+        <label for="comment" class="form-label">Add a comment</label>
+        <textarea id="comment" name="comment" class="form-control" rows="3" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Post Comment</button>
+    </form>
+  {% else %}
+    <p>Please <a href="{{ url_for('main.login') }}">log in</a> to comment.</p>
+  {% endif %}
 {% endblock %}
