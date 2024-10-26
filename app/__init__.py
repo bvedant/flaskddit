@@ -1,6 +1,6 @@
 import os
 from flask import Flask
-from .database import init_db, get_vote_count
+from .database import init_db
 
 def load_env():
     """Load variables from a .env file into environment variables."""
@@ -23,7 +23,5 @@ def create_app():
 
     from .routes import main
     app.register_blueprint(main)
-
-    app.jinja_env.globals['get_vote_count'] = get_vote_count
 
     return app

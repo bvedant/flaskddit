@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
-from .database import get_db, add_user, validate_user, add_post, get_posts, add_vote
+from .database import get_db, add_user, validate_user, add_post, get_posts, add_vote, get_vote_count
 
 main = Blueprint('main', __name__)
 
@@ -7,7 +7,7 @@ main = Blueprint('main', __name__)
 @main.route("/home")
 def home():
     posts = get_posts()
-    return render_template('index.html', posts=posts)
+    return render_template('index.html', posts=posts, get_vote_count=get_vote_count)
 
 @main.route("/register", methods=['GET', 'POST'])
 def register():
@@ -82,7 +82,7 @@ def view_post(post_id):
         db.commit()
         return redirect(url_for('main.view_post', post_id=post_id))
 
-    return render_template('view_post.html', post=post, comments=comments)
+    return render_template('view_post.html', post=post, comments=comments, get_vote_count=get_vote_count)
 
 @main.route("/post/<int:post_id>/upvote", methods=["POST"])
 def upvote(post_id):
