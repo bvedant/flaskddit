@@ -1,5 +1,5 @@
 import sqlite3
-from flask import g
+from flask import g, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 
 def get_db():
@@ -15,8 +15,8 @@ def close_db(e=None):
 
 def init_db():
     db = get_db()
-    with open('app/schema.sql') as f:
-        db.executescript(f.read())
+    with current_app.open_resource("schema.sql") as f:
+        db.executescript(f.read().decode("utf8"))
     db.commit()
 
 def add_user(username, email, password):
