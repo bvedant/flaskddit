@@ -6,16 +6,21 @@
       <div class="col-md-6 mb-4">
         <div class="card shadow-sm">
           <div class="card-body">
-            <h5 class="card-title"><a href="{{ url_for('main.view_post', post_id=post['id']) }}">{{ post['title'] }}</a></h5>
+            <h5 class="card-title">
+              <a href="{{ url_for('main.view_post', post_id=post['id']) }}">{{ post['title'] }}</a>
+            </h5>
             <p class="card-text">{{ post['content'] }}</p>
             <small class="text-muted">Posted by {{ post['username'] }}</small>
-            <p>Votes: {{ get_vote_count(post['id']) }}</p>
-            <form action="{{ url_for('main.vote', post_id=post['id'], vote=1) }}" method="post">
+            <p class="mt-2">Score: {{ get_vote_count(post['id']) }}</p>
+
+            <div class="d-flex">
+              <form method="POST" action="{{ url_for('main.upvote', post_id=post['id']) }}" class="me-2">
                 <button type="submit" class="btn btn-success btn-sm">Upvote</button>
-            </form>
-            <form action="{{ url_for('main.vote', post_id=post['id'], vote=-1) }}" method="post">
+              </form>
+              <form method="POST" action="{{ url_for('main.downvote', post_id=post['id']) }}">
                 <button type="submit" class="btn btn-danger btn-sm">Downvote</button>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       </div>

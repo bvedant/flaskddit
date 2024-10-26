@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
-from .database import get_db, add_user, validate_user, add_post, get_posts, add_or_update_vote
+from .database import get_db, add_user, validate_user, add_post, get_posts, add_vote
 
 main = Blueprint('main', __name__)
 
@@ -84,16 +84,21 @@ def view_post(post_id):
 
     return render_template('view_post.html', post=post, comments=comments)
 
-@main.route("/vote/<int:post_id>/<int:vote>", methods=['POST'])
-def vote(post_id, vote):
+@main.route("/post/<int:post_id>/upvote", methods=["POST"])
+def upvote(post_id):
     if 'user_id' not in session:
-        flash('Please log in to vote', 'danger')
-        return redirect(url_for('main.login'))
-    
-    if vote not in [1, -1]:  # Ensure only +1 or -1 votes are allowed
-        flash('Invalid vote', 'danger')
-        return redirect(url_for('main.home'))
-    
-    user_id = session['user_id']
-    add_or_update_vote(user_id, post_id, vote)
-    return redirect(url_for('main.view_post', post_id=post_id))
+        flash("Please log in to vote.", "danger")
+        return redirect(url_for("main.login"))
+
+    add_vote(post_id, session['user_id'], 1)
+    return redirect(url_for("main.view_post", post_id=post_id))
+
+@main.route("/post/<int:post_id>/downvote", methods=["POST"])
+def downvote(post_id):
+    if 'user_id' not in session:
+        flash("Please log in to vote.", "danger")
+        return redirect(url_for("main.login"))
+
+    add_vote(post_id, session['user_id'], -1)
+    return redirect(url_for("main.view_post", post_id=post_id))
+

@@ -45,23 +45,13 @@ def get_posts():
         JOIN users ON posts.user_id = users.id
     ''').fetchall()
 
+def add_vote(post_id, user_id, vote):
+    db = get_db()
+    db.execute('INSERT OR REPLACE INTO votes (post_id, user_id, vote) VALUES (?, ?, ?)', (post_id, user_id, vote))
+    db.commit()
+
 def get_vote_count(post_id):
     db = get_db()
-    result = db.execute(
-        'SELECT SUM(vote) AS vote_count FROM votes WHERE post_id = ?', (post_id,)
-    ).fetchone()
-    return result['vote_count'] if result['vote_count'] is not None else 0
-
-def add_or_update_vote(user_id, post_id, vote):
-    db = get_db()
-    existing_vote = db.execute(
-        'SELECT vote FROM votes WHERE user_id = ? AND post_id = ?', (user_id, post_id)
-    ).fetchone()
-    
-    if existing_vote is None:
-        db.execute('INSERT INTO votes (user_id, post_id, vote) VALUES (?, ?, ?)',
-                   (user_id, post_id, vote))
-    else:
-        db.execute('UPDATE votes SET vote = ? WHERE user_id = ? AND post_id = ?',
-                   (vote, user_id, post_id))
-    db.commit()
+    upvotes = db.execute('SELECT COUNT(*) FROM votes WHERE post_id = ? AND vote = 1', (post_id,)).fetchone()[0]
+    downvotes = db.execute('SELECT COUNT(*) FROM votes WHERE post_id = ? AND vote = -1', (post_id,)).fetchone()[0]
+    return upvotes - downvotes
